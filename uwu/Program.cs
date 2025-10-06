@@ -138,6 +138,7 @@ namespace uwu
                         metodos.RankingJugadores();
                         break;
                     case 7:
+
                         break;
                     case 8:
                         break;
@@ -155,7 +156,7 @@ namespace uwu
             public int Edad { get; set; }
             public int Nivel { get; set; }
             public T Especiales { get; set; }
-            public T Stats { get; set; }
+            public int Stats { get; set; }
             public Team<T> Equipo { get; set; }
 
             public void MostrarInfo()
@@ -368,11 +369,21 @@ namespace uwu
                     Console.WriteLine($"EL EQUIPO {p1.NombreTeam} ES EL GRAN GANADOR DEL TORNEO {nombreTorneo}");
                     Console.ForegroundColor = ConsoleColor.White;
 
-                    torneosPasados.Push("Nombre del Torneo: " + torneo.NombreTour +
+                    torneosPasados.Push("\nNombre del Torneo: " + torneo.NombreTour +
                         $"\nGanador: {p1.NombreTeam}" +
                         $"\n2do Puesto: {p3.NombreTeam}" +
                         $"\n3er Puesto: {p2.NombreTeam}" +
                         $"\n4to Puesto: {p4.NombreTeam}");
+
+                    var primer = jugadores.Where(e => e.Equipo.Equals(p1)).ToList();
+                    var segundo = jugadores.Where(e => e.Equipo.Equals(p3)).ToList();
+
+                    foreach (var item in primer)
+                    {
+                        int pLugar = rnd.Next(90, 100);
+                        item.Stats = pLugar;
+                        Console.WriteLine(item.Stats + " q");
+                    }
 
                 }
                 else if (cantidad == 8)
@@ -442,12 +453,25 @@ namespace uwu
                     Console.WriteLine($"El equipo {p1.NombreTeam} pasó a la GRAN FINAL ganando contra {p3.NombreTeam}");
                     Console.WriteLine($"El equipo {p5.NombreTeam} pasó a la GRAN FINAL ganando contra {p7.NombreTeam}");
 
+                    Console.WriteLine($"El equipo {p3.NombreTeam} quedó en TERCER PUESTO ganando contra {p7.NombreTeam}");
+
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine($"El equipo {p1.NombreTeam} ganó el partido contra {p5.NombreTeam}");
 
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine($"EL EQUIPO {p1.NombreTeam} ES EL GRAN GANADOR DEL TORNEO {nombreTorneo}");
                     Console.ForegroundColor = ConsoleColor.White;
+
+                    torneosPasados.Push("Nombre del Torneo: " + torneo.NombreTour +
+                        $"\nGanador: {p1.NombreTeam}" +
+                        $"\n2do Puesto: {p5.NombreTeam}" +
+                        $"\n3er Puesto: {p3.NombreTeam}" +
+                        $"\n4to Puesto: {p7.NombreTeam}" +
+                        $"\n5to Puesto: {p2.NombreTeam}" +
+                        $"\n6to Puesto: {p4.NombreTeam}" +
+                        $"\n7mo Puesto: {p6.NombreTeam}" +
+                        $"\n8vo Puesto: {p8.NombreTeam}"
+                        );
                 }
                 Console.WriteLine();
             }
