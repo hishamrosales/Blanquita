@@ -177,7 +177,7 @@ namespace uwu
                 Console.Write($"Nuevas estadísticas: {Stats}");
 
 
-           }*/
+           } */
         }
         public class Team<T>
         {
