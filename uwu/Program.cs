@@ -68,7 +68,6 @@ namespace uwu
                 Console.WriteLine("4. Crear Torneo");
                 Console.WriteLine("5. Historial de Torneos");
                 Console.WriteLine("6. Mostrar Ranking general de Jugadores");
-                Console.WriteLine("7. Mostrar Ranking general de Equipos");
                 Console.WriteLine("10. Salir");
                 respuesta = Convert.ToInt32(Console.ReadLine());
 
@@ -91,29 +90,52 @@ namespace uwu
                         metodos.CrearTeam(nombreE);
                         break;
                     case 3:
-                        Console.WriteLine("Selecciona el Jugador");
-                        metodos.ListaJugadores();
-                        int selJugador = Convert.ToInt16(Console.ReadLine());
 
-                        Console.WriteLine("Selecciona el Equipo");
-                        metodos.ListaEquipos();
-                        int selEquipo = Convert.ToInt32(Console.ReadLine());
+                        if (metodos.ListaJugadores() == false)
+                        {
+                            Console.WriteLine("No hay jugadores disponibles sin equipo");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Selecciona el Jugador");
+                            metodos.ListaJugadores();
+                            int selJugador = Convert.ToInt16(Console.ReadLine());
 
-                        metodos.AñadirJug(selJugador, selEquipo);
+                            Console.WriteLine("Selecciona el Equipo");
+                            metodos.ListaEquipos();
+                            int selEquipo = Convert.ToInt32(Console.ReadLine());
+
+                            metodos.AñadirJug(selJugador, selEquipo);
+                        }
+
+
                         break;
                     case 4:
-                        Console.WriteLine("¿Cómo se llamará el Torneo?");
-                        string nombTorneo = Console.ReadLine();
+                        string tipoTorneo;
 
-                        Console.WriteLine("Selecciona el equipo que deseas agregar al Torneo");
-                        metodos.ListaEquipos();
-                        int agregar = Convert.ToInt32(Console.ReadLine());
+                        Console.WriteLine("¿Cómo se llamará el Torneo?");
+                        string nomTorneo = Console.ReadLine();
+
+                        do
+                        {
+                            Console.WriteLine("¿De qué tipo será el torneo? Deportes/eSports?");
+                            tipoTorneo = Console.ReadLine();
+
+                            if (tipoTorneo != "Deportes" && tipoTorneo != "eSports")
+                                Console.WriteLine("Selecciona una opción válida");
+
+                        } while (tipoTorneo != "Deportes" && tipoTorneo != "eSports");
+
+
+                        metodos.CrearTorneo(nomTorneo, tipoTorneo);
 
 
                         break;
                     case 5:
+                        metodos.HistorialTorneos();
                         break;
                     case 6:
+                        metodos.RankingJugadores();
                         break;
                     case 7:
                         break;
@@ -223,8 +245,9 @@ namespace uwu
                 }
             }
 
-            public void ListaJugadores()
+            public bool ListaJugadores()
             {
+                bool vacio = false;
                 int index = 1;
                 foreach (var item in jugadores)
                 {
@@ -232,8 +255,10 @@ namespace uwu
                     {
                         Console.WriteLine(index + ". " + item.NombreP);
                         index++;
+                        vacio = true;
                     }
                 }
+                return vacio;
             }
 
 
@@ -255,14 +280,183 @@ namespace uwu
                     NombreTeam = nombre,
                 });
             }
-            public void Torneos(int nombre)
+            public void CrearTorneo(string nombreTorneo, string tipoTorneo)
             {
-                Team<T> seleccionado = equipos.Values.ElementAt(nombre - 1);
-                turnos.Enqueue(seleccionado.NombreTeam);
-            }
-            public void HistorialTorneos(int e1, int e2, int e3, int e4)
-            {
+                int cantidad = 0;
+                int seleccion = 0;
+                Tournament<Team<T>> torneo = new Tournament<Team<T>>
+                {
+                    NombreTour = nombreTorneo,
+                    Participantes = new List<Team<T>>(),
+                    TipoJ = tipoTorneo,
+                };
 
+                do
+                {
+                    Console.WriteLine("¿Cuántos equipos deseas agregar al torneo? 4 u 8?");
+                    cantidad = Convert.ToInt32(Console.ReadLine());
+
+                    if (cantidad != 4 && cantidad != 8)
+                        Console.WriteLine("Escoge una respuesta correcta");
+
+                } while (cantidad != 4 && cantidad != 8);
+
+
+                if (cantidad == 4)
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        bool valido = false;
+                        Team<T> equipoSeleccionado = null;
+
+                        while (!valido)
+                        {
+                            Console.WriteLine($"Selecciona el equipo #{i + 1}:");
+                            ListaEquipos();
+
+                            seleccion = Convert.ToInt32(Console.ReadLine());
+
+                            if (seleccion < 1 || seleccion > equipos.Count)
+                            {
+                                Console.WriteLine("Opción no válida. Intenta nuevamente.");
+                                continue;
+                            }
+
+                            equipoSeleccionado = equipos.Values.ElementAt(seleccion - 1);
+
+                            if (torneo.Participantes.Contains(equipoSeleccionado))
+                            {
+                                Console.WriteLine("Ese equipo ya fue agregado al torneo. Elige otro.");
+                            }
+                            else
+                            {
+                                valido = true;
+                            }
+                        }
+                        torneo.Participantes.Add(equipoSeleccionado);
+                        Console.WriteLine($"Equipo '{equipoSeleccionado.NombreTeam}' agregado al torneo.");
+                    }
+
+                    List<int> ints = new List<int>();
+                    Random rnd = new Random();
+
+                    while (ints.Count < 4)
+                    {
+                        int num = rnd.Next(torneo.Participantes.Count);
+                        if (!ints.Contains(num))
+                            ints.Add(num);
+                    }
+
+                    Team<T> p1 = torneo.Participantes[ints[0]];
+                    Team<T> p2 = torneo.Participantes[ints[1]];
+                    Team<T> p3 = torneo.Participantes[ints[2]];
+                    Team<T> p4 = torneo.Participantes[ints[3]];
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"RESULTADOS DEL TORNEO {nombreTorneo}");
+
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"El equipo {p1.NombreTeam} pasó a la GRAN FINAL ganando contra {p2.NombreTeam}");
+                    Console.WriteLine($"El equipo {p3.NombreTeam} pasó a la GRAN FINAL ganando contra {p4.NombreTeam}");
+
+                    Console.WriteLine($"El equipo {p2.NombreTeam} quedó en TERCER PUESTO ganando contra {p4.NombreTeam}");
+
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"El equipo {p1.NombreTeam} ganó el partido contra {p3.NombreTeam}");
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"EL EQUIPO {p1.NombreTeam} ES EL GRAN GANADOR DEL TORNEO {nombreTorneo}");
+                    Console.ForegroundColor = ConsoleColor.White;
+
+                    torneosPasados.Push("Nombre del Torneo: " + torneo.NombreTour +
+                        $"\nGanador: {p1.NombreTeam}" +
+                        $"\n2do Puesto: {p3.NombreTeam}" +
+                        $"\n3er Puesto: {p2.NombreTeam}" +
+                        $"\n4to Puesto: {p4.NombreTeam}");
+
+                }
+                else if (cantidad == 8)
+                {
+                    for (int i = 0; i < 8; i++)
+                    {
+                        bool valido = false;
+                        Team<T> equipoSeleccionado = null;
+
+                        while (!valido)
+                        {
+                            Console.WriteLine($"Selecciona el equipo #{i + 1}:");
+                            ListaEquipos();
+
+                            seleccion = Convert.ToInt32(Console.ReadLine());
+
+                            if (seleccion < 1 || seleccion > equipos.Count)
+                            {
+                                Console.WriteLine("Opción no válida. Intenta nuevamente.");
+                                continue;
+                            }
+
+                            equipoSeleccionado = equipos.Values.ElementAt(seleccion - 1);
+
+                            if (torneo.Participantes.Contains(equipoSeleccionado))
+                            {
+                                Console.WriteLine("Ese equipo ya fue agregado al torneo. Elige otro.");
+                            }
+                            else
+                            {
+                                valido = true;
+                            }
+                        }
+                        torneo.Participantes.Add(equipoSeleccionado);
+                        Console.WriteLine($"Equipo '{equipoSeleccionado.NombreTeam}' agregado al torneo.");
+                    }
+
+                    List<int> ints = new List<int>();
+                    Random rnd = new Random();
+
+                    while (ints.Count < 8)
+                    {
+                        int num = rnd.Next(torneo.Participantes.Count);
+                        if (!ints.Contains(num))
+                            ints.Add(num);
+                    }
+
+                    Team<T> p1 = torneo.Participantes[ints[0]];
+                    Team<T> p2 = torneo.Participantes[ints[1]];
+                    Team<T> p3 = torneo.Participantes[ints[2]];
+                    Team<T> p4 = torneo.Participantes[ints[3]];
+                    Team<T> p5 = torneo.Participantes[ints[4]];
+                    Team<T> p6 = torneo.Participantes[ints[5]];
+                    Team<T> p7 = torneo.Participantes[ints[6]];
+                    Team<T> p8 = torneo.Participantes[ints[7]];
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"RESULTADOS DEL TORNEO {nombreTorneo}");
+
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine($"El equipo {p1.NombreTeam} pasó a SEMIFINALES ganando contra {p2.NombreTeam}");
+                    Console.WriteLine($"El equipo {p3.NombreTeam} pasó a SEMIFINALES ganando contra {p4.NombreTeam}");
+                    Console.WriteLine($"El equipo {p5.NombreTeam} pasó a SEMIFINALES ganando contra {p6.NombreTeam}");
+                    Console.WriteLine($"El equipo {p7.NombreTeam} pasó a SEMIFINALES ganando contra {p8.NombreTeam}");
+
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"El equipo {p1.NombreTeam} pasó a la GRAN FINAL ganando contra {p3.NombreTeam}");
+                    Console.WriteLine($"El equipo {p5.NombreTeam} pasó a la GRAN FINAL ganando contra {p7.NombreTeam}");
+
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine($"El equipo {p1.NombreTeam} ganó el partido contra {p5.NombreTeam}");
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine($"EL EQUIPO {p1.NombreTeam} ES EL GRAN GANADOR DEL TORNEO {nombreTorneo}");
+                    Console.ForegroundColor = ConsoleColor.White;
+                }
+                Console.WriteLine();
+            }
+            public void HistorialTorneos()
+            {
+                Console.WriteLine("Historial de torneos pasados");
+
+                foreach (var item in torneosPasados)
+                    Console.WriteLine(item);
             }
 
             //MÉTODOS PARA AÑADIR
@@ -277,9 +471,16 @@ namespace uwu
 
                 jugadores.Remove(p1);
             }
+
+            //RANKINGS
+
+            public void RankingJugadores()
+            {
+                var topStats = jugadores.OrderByDescending(t => t.Stats);
+                Console.WriteLine("Jugadores ordenados por Mejores Estadisticas");
+                foreach (var t in topStats)
+                    Console.WriteLine(t.NombreP + " - " + t.Stats + " - " + t.Equipo);
+            }
         }
-
-
     }
-
 }
