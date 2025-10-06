@@ -68,6 +68,7 @@ namespace uwu
                 Console.WriteLine("4. Crear Torneo");
                 Console.WriteLine("5. Historial de Torneos");
                 Console.WriteLine("6. Mostrar Ranking general de Jugadores");
+                Console.WriteLine("7.Mostrar Información del jugador");
                 Console.WriteLine("10. Salir");
                 respuesta = Convert.ToInt32(Console.ReadLine());
 
@@ -138,7 +139,7 @@ namespace uwu
                         metodos.RankingJugadores();
                         break;
                     case 7:
-
+                        
                         break;
                     case 8:
                         break;
@@ -154,23 +155,29 @@ namespace uwu
         {
             public string NombreP { get; set; }
             public int Edad { get; set; }
-            public int Nivel { get; set; }
+            public double Nivel { get; set; }
             public T Especiales { get; set; }
             public int Stats { get; set; }
             public Team<T> Equipo { get; set; }
 
             public void MostrarInfo()
             {
-                Console.WriteLine($"Nombre: {NombreP} || Edad: {Edad} || Nivel {Nivel} || Stats: {Stats}");
+                Console.WriteLine($"Nombre: {NombreP} || Edad: {Edad} || Nivel {Nivel} || Especial: {Especiales} || Stats: {Stats}");
             }
-            public void ActualizarStats(int newStat)
+            /*public void ActualizarStats(int nuevoNivel)
             {
-                Console.WriteLine("Se actualizó el nivel del jugador");
+                Console.WriteLine($"Se actualizaron las estadistícas de: {NombreP}");
                 Console.Write($"Nivel anterior: {Nivel} || ");
-                Nivel = newStat;
+                Console.Write($"Estadíasticas anteriores: {Stats} || ");
+                Nivel = nuevoNivel;
+                
+                int nuevasEst =
+                Stats = nuevasEst
                 Console.Write($"Nuevo nivel: {Nivel}");
+                Console.Write($"Nuevas estadísticas: {Stats}");
 
-            }
+
+           }*/
         }
         public class Team<T>
         {
