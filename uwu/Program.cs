@@ -202,7 +202,7 @@ namespace uwu
             public int Edad { get; set; }
             public double Nivel { get; set; }
             public T Especiales { get; set; }
-            public int Stats { get; set; }
+            public string Stats { get; set; }
             public Team<T> Equipo { get; set; }
             public string TipoJ { get; set; }
 
@@ -212,10 +212,27 @@ namespace uwu
             }
             public void ActualizarStats(double newStat)
             {
-                Console.WriteLine("Se actualizó el nivel del jugador");
-                Console.Write($"Nivel anterior: {Nivel:F2} || ");
-                Nivel = newStat;
-                Console.Write($"Nuevo nivel: {Nivel:F2}");
+                Nivel = Nivel + newStat;
+                if (Nivel > 25)
+                {
+                    Nivel = 25;
+                }
+                else
+                {
+                    Console.WriteLine("Se actualizó el nivel del jugador");
+                    Console.WriteLine($"Nuevo nivel: {Nivel:F2}");
+                }
+
+                if (Nivel >= 0 && Nivel < 5)
+                    Stats = "Jugador de una estrella * ";
+                else if (Nivel >= 5 && Nivel < 10)
+                    Stats = "Jugador de dos estrellas **";
+                else if (Nivel >= 10 && Nivel < 15)
+                    Stats = "Jugador de tres estrellas ***";
+                else if (Nivel >= 15 && Nivel < 20)
+                    Stats = "Jugador de cuatro estrellas ****";
+                else if (Nivel >= 20 && Nivel <= 25)
+                    Stats = "Jugador de cinco estrellas *****";
 
             }
         }
@@ -254,10 +271,11 @@ namespace uwu
                 Team<T> t1 = EquiposDeportes.Values.FirstOrDefault(e => e.Equals(a));
                 Team<T> t2 = EquiposDeportes.Values.FirstOrDefault(e => e.Equals(b));
             }
-            //public static double CalculateAverage<T>(List<T> list)
-            //{
-            //    return;
-            //}
+            public static double CalculateAverage<T>(List<T> list)
+            {
+
+                return;
+            }
             public void PrintDetails<T>(T item)
             {
 
