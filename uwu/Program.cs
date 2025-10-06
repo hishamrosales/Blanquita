@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,40 +16,42 @@ namespace uwu
         {
             Metodos<string> metodos = new Metodos<string>();
 
-            metodos.CrearTeam("Barcelona");
-            metodos.CrearTeam("PSG");
-            metodos.CrearTeam("Real Madrid");
-            metodos.CrearTeam("Bayern");
-            metodos.CrearTeam("Golden State");
-            metodos.CrearTeam("Lakers");
-            metodos.CrearTeam("Celtics");
-            metodos.CrearTeam("Bulls");
+            metodos.CrearTeamDeportes("Barcelona");
+            metodos.CrearTeamDeportes("PSG");
+            metodos.CrearTeamDeportes("Real Madrid");
+            metodos.CrearTeamDeportes("Bayern");
+            metodos.CrearTeamDeportes("Golden State");
+            metodos.CrearTeamDeportes("Lakers");
+            metodos.CrearTeamDeportes("Celtics");
+            metodos.CrearTeamDeportes("Bulls");
 
-            metodos.CrearJugador("Luis", 25, "Portero");
-            metodos.CrearJugador("Andrés", 22, "Defensa");
-            metodos.CrearJugador("Carlos", 27, "Delantero");
-            metodos.CrearJugador("Miguel", 24, "Mediocampista");
-            metodos.CrearJugador("Diego", 23, "Lateral Derecho");
-            metodos.CrearJugador("Sergio", 29, "Lateral Izquierdo");
-            metodos.CrearJugador("Emilio", 21, "Extremo Derecho");
-            metodos.CrearJugador("Ricardo", 26, "Extremo Izquierdo");
-            metodos.CrearJugador("José", 24, "Defensa Central");
-            metodos.CrearJugador("Héctor", 30, "Delantero Centro");
-            metodos.CrearJugador("Manuel", 28, "Mediocentro Defensivo");
-            metodos.CrearJugador("Adrián", 22, "Mediocentro Ofensivo");
+            metodos.CrearTeameSports("G2");
 
-            metodos.CrearJugador("Javier", 21, "Base");
-            metodos.CrearJugador("Fernando", 23, "Escolta");
-            metodos.CrearJugador("Raúl", 26, "Alero");
-            metodos.CrearJugador("Iván", 28, "Pívot");
-            metodos.CrearJugador("Marcos", 24, "Base");
-            metodos.CrearJugador("Tomás", 25, "Escolta");
-            metodos.CrearJugador("Esteban", 27, "Alero");
-            metodos.CrearJugador("Pablo", 23, "Ala-Pívot");
-            metodos.CrearJugador("Ramiro", 29, "Pívot");
-            metodos.CrearJugador("Nicolás", 21, "Escolta");
-            metodos.CrearJugador("David", 26, "Alero");
-            metodos.CrearJugador("Gustavo", 28, "Base");
+            metodos.CrearJugador("Luis", 25, "Portero", "Deportes");
+            metodos.CrearJugador("Andrés", 22, "Defensa", "Deportes");
+            metodos.CrearJugador("Carlos", 27, "Delantero", "Deportes");
+            metodos.CrearJugador("Miguel", 24, "Mediocampista", "Deportes");
+            metodos.CrearJugador("Diego", 23, "Lateral Derecho", "Deportes");
+            metodos.CrearJugador("Sergio", 29, "Lateral Izquierdo", "Deportes");
+            metodos.CrearJugador("Emilio", 21, "Extremo Derecho", "Deportes");
+            metodos.CrearJugador("Ricardo", 26, "Extremo Izquierdo", "Deportes");
+            metodos.CrearJugador("José", 24, "Defensa Central", "Deportes");
+            metodos.CrearJugador("Héctor", 30, "Delantero Centro", "Deportes");
+            metodos.CrearJugador("Manuel", 28, "Mediocentro Defensivo", "Deportes");
+            metodos.CrearJugador("Adrián", 22, "Mediocentro Ofensivo", "Deportes");
+
+            metodos.CrearJugador("Javier", 21, "Base", "Deportes");
+            metodos.CrearJugador("Fernando", 23, "Escolta", "Deportes");
+            metodos.CrearJugador("Raúl", 26, "Alero", "Deportes");
+            metodos.CrearJugador("Iván", 28, "Pívot", "Deportes");
+            metodos.CrearJugador("Marcos", 24, "Base", "Deportes");
+            metodos.CrearJugador("Tomás", 25, "Escolta", "Deportes");
+            metodos.CrearJugador("Esteban", 27, "Alero", "Deportes");
+            metodos.CrearJugador("Pablo", 23, "Ala-Pívot", "Deportes");
+            metodos.CrearJugador("Ramiro", 29, "Pívot", "Deportes");
+            metodos.CrearJugador("Nicolás", 21, "Escolta", "Deportes");
+            metodos.CrearJugador("David", 26, "Alero", "Deportes");
+            metodos.CrearJugador("Gustavo", 28, "Base", "Deportes");
 
             for (int i = 1; i < 9; i++)
             {
@@ -74,6 +77,8 @@ namespace uwu
                 switch (respuesta)
                 {
                     case 1:
+                        string tipoJugador;
+
                         Console.WriteLine("Escriba el nombre del Jugador");
                         string nombre = Console.ReadLine();
                         Console.WriteLine("Escribe la edad del Jugador");
@@ -81,28 +86,69 @@ namespace uwu
                         Console.WriteLine("Escribe las características especiales del jugador");
                         string especial = Console.ReadLine();
 
-                        metodos.CrearJugador(nombre, edad, especial);
+                        do
+                        {
+                            Console.WriteLine("Escribe si será un jugador de Deportes o de eSports");
+                            tipoJugador = Console.ReadLine();
+                        } while (tipoJugador != "Deportes" && tipoJugador != "eSports");
+                        metodos.CrearJugador(nombre, edad, especial, tipoJugador);
                         break;
-                    case 2:
-                        Console.WriteLine("Escriba el nombre del Equipo");
-                        string nombreE = Console.ReadLine();
 
-                        metodos.CrearTeam(nombreE);
+                    case 2:
+                        string tipoTeam;
+                        do
+                        {
+                            Console.WriteLine("Será un equipo de Deportes o de eSports?");
+                            tipoTeam = Console.ReadLine();
+
+                            if (tipoTeam == "Deportes")
+                            {
+                                Console.WriteLine("Escriba el nombre del Equipo");
+                                string nombreE = Console.ReadLine();
+                                metodos.CrearTeamDeportes(nombreE);
+                            }
+                            else if (tipoTeam == "eSports")
+                            {
+                                Console.WriteLine("Escriba el nombre del Equipo");
+                                string nombreE = Console.ReadLine();
+                                metodos.CrearTeameSports(nombreE);
+                            }
+                        } while (tipoTeam != "Deportes" && tipoTeam != "eSports");
+
                         break;
                     case 3:
+                        string tipoAñadir;
 
+                        do
+                        {
+                            Console.WriteLine("Añadirás a team de Deportes o eSports?");
+                            tipoAñadir = Console.ReadLine();
+
+                        } while (tipoAñadir != "eSports" && tipoAñadir != "Deportes");
                         if (metodos.ListaJugadores() == false)
                         {
                             Console.WriteLine("No hay jugadores disponibles sin equipo");
                         }
-                        else
+                        else if (tipoAñadir == "Deportes")
                         {
                             Console.WriteLine("Selecciona el Jugador");
                             metodos.ListaJugadores();
                             int selJugador = Convert.ToInt16(Console.ReadLine());
 
                             Console.WriteLine("Selecciona el Equipo");
-                            metodos.ListaEquipos();
+                            metodos.ListaEquiposDeportes();
+                            int selEquipo = Convert.ToInt32(Console.ReadLine());
+
+                            metodos.AñadirJug(selJugador, selEquipo);
+                        }
+                        else if (tipoAñadir == "eSports")
+                        {
+                            Console.WriteLine("Selecciona el Jugador");
+                            metodos.ListaJugadores();
+                            int selJugador = Convert.ToInt16(Console.ReadLine());
+
+                            Console.WriteLine("Selecciona el Equipo");
+                            metodos.ListaEquiposeSports();
                             int selEquipo = Convert.ToInt32(Console.ReadLine());
 
                             metodos.AñadirJug(selJugador, selEquipo);
@@ -154,21 +200,22 @@ namespace uwu
         {
             public string NombreP { get; set; }
             public int Edad { get; set; }
-            public int Nivel { get; set; }
+            public double Nivel { get; set; }
             public T Especiales { get; set; }
             public int Stats { get; set; }
             public Team<T> Equipo { get; set; }
+            public string TipoJ { get; set; }
 
             public void MostrarInfo()
             {
                 Console.WriteLine($"Nombre: {NombreP} || Edad: {Edad} || Nivel {Nivel} || Stats: {Stats}");
             }
-            public void ActualizarStats(int newStat)
+            public void ActualizarStats(double newStat)
             {
                 Console.WriteLine("Se actualizó el nivel del jugador");
-                Console.Write($"Nivel anterior: {Nivel} || ");
+                Console.Write($"Nivel anterior: {Nivel:F2} || ");
                 Nivel = newStat;
-                Console.Write($"Nuevo nivel: {Nivel}");
+                Console.Write($"Nuevo nivel: {Nivel:F2}");
 
             }
         }
@@ -176,12 +223,13 @@ namespace uwu
         {
             public string NombreTeam { get; set; }
             public List<Player<T>> Jugadores { get; set; } = new List<Player<T>>();
+            public string TipoT { get; set; }
         }
 
         public class Tournament<T>
         {
             public string NombreTour { get; set; }
-            public string TipoJ { get; set; }
+            public string TipoTour { get; set; }
             public List<T> Participantes { get; set; }
         }
 
@@ -189,7 +237,8 @@ namespace uwu
         public class Metodos<T>
         {
             List<Player<T>> jugadores = new List<Player<T>>();
-            Dictionary<string, Team<T>> equipos = new Dictionary<string, Team<T>>();
+            Dictionary<string, Team<T>> EquiposDeportes = new Dictionary<string, Team<T>>();
+            Dictionary<string, Team<T>> EquiposeSports = new Dictionary<string, Team<T>>();
             Queue<Player<T>> turnos = new Queue<Player<T>>();
             Stack<Player<T>> historial = new Stack<Player<T>>();
             Stack<string> torneosPasados = new Stack<string>();
@@ -202,8 +251,8 @@ namespace uwu
             }
             public void CompareScoresEquipos(T a, T b)
             {
-                Team<T> t1 = equipos.Values.FirstOrDefault(e => e.Equals(a));
-                Team<T> t2 = equipos.Values.FirstOrDefault(e => e.Equals(b));
+                Team<T> t1 = EquiposDeportes.Values.FirstOrDefault(e => e.Equals(a));
+                Team<T> t2 = EquiposDeportes.Values.FirstOrDefault(e => e.Equals(b));
             }
             //public static double CalculateAverage<T>(List<T> list)
             //{
@@ -216,19 +265,42 @@ namespace uwu
 
 
             // METODOS PARA LISTAS
-            public void ListaEquipos()
+            public void ListaEquiposDeportes()
             {
-                int index = 1;
-                foreach (var item in equipos)
+                var lista = EquiposDeportes.Values.Where(e => e.TipoT == "Deportes").ToList();
+                if (lista.Count == 0)
                 {
-                    Console.WriteLine(index + ". " + item.Key);
+                    Console.WriteLine("No hay equipos de eSports registrados.");
+                    return;
+                }
+
+                int index = 1;
+                foreach (var item in lista)
+                {
+                    Console.WriteLine(index + ". " + item.NombreTeam);
                     index++;
                 }
             }
-            public void ListaEquiposConJugadores()
+            public void ListaEquiposeSports()
+            {
+                var lista = EquiposeSports.Values.Where(e => e.TipoT == "eSports").ToList();
+                if (lista.Count == 0)
+                {
+                    Console.WriteLine("No hay equipos de eSports registrados.");
+                    return;
+                }
+
+                int index = 1;
+                foreach (var item in lista)
+                {
+                    Console.WriteLine(index + ". " + item.NombreTeam);
+                    index++;
+                }
+            }
+            public void ListaEquiposConJugadoresDeportes()
             {
                 int index = 1;
-                foreach (var equipo in equipos.Values)
+                foreach (var equipo in EquiposDeportes.Values)
                 {
                     Console.WriteLine(index + ". " + equipo.NombreTeam);
                     if (equipo.Jugadores.Count <= 0)
@@ -245,7 +317,26 @@ namespace uwu
                     index++;
                 }
             }
-
+            public void ListaEquiposConJugadoreseSports()
+            {
+                int index = 1;
+                foreach (var equipo in EquiposeSports.Values)
+                {
+                    Console.WriteLine(index + ". " + equipo.NombreTeam);
+                    if (equipo.Jugadores.Count <= 0)
+                        Console.WriteLine("No hay jugadores aún");
+                    else
+                    {
+                        int indexer = 1;
+                        foreach (var jugador in equipo.Jugadores)
+                        {
+                            Console.WriteLine("   " + indexer + ". " + jugador.NombreP + " " + "(Edad: " + jugador.Edad + ") " + "Posición: " + jugador.Especiales);
+                            indexer++;
+                        }
+                    }
+                    index++;
+                }
+            }
             public bool ListaJugadores()
             {
                 bool vacio = false;
@@ -264,21 +355,31 @@ namespace uwu
 
 
             //MÉTODOS PARA CREAR
-            public void CrearJugador(string nombre, int edad, T especial)
+            public void CrearJugador(string nombre, int edad, T especial, string TipoJ)
             {
                 jugadores.Add(new Player<T>
                 {
                     NombreP = nombre,
                     Edad = edad,
-                    Especiales = especial
+                    Especiales = especial,
+                    TipoJ = TipoJ,
                 });
             }
 
-            public void CrearTeam(string nombre)
+            public void CrearTeamDeportes(string nombre)
             {
-                equipos.Add(nombre, new Team<T>
+                EquiposDeportes.Add(nombre, new Team<T>
                 {
                     NombreTeam = nombre,
+                    TipoT = "Deportes"
+                });
+            }
+            public void CrearTeameSports(string nombre)
+            {
+                EquiposeSports.Add(nombre, new Team<T>
+                {
+                    NombreTeam = nombre,
+                    TipoT = "eSports"
                 });
             }
             public void CrearTorneo(string nombreTorneo, string tipoTorneo)
@@ -289,7 +390,7 @@ namespace uwu
                 {
                     NombreTour = nombreTorneo,
                     Participantes = new List<Team<T>>(),
-                    TipoJ = tipoTorneo,
+                    TipoTour = tipoTorneo,
                 };
 
                 do
@@ -313,26 +414,52 @@ namespace uwu
                         while (!valido)
                         {
                             Console.WriteLine($"Selecciona el equipo #{i + 1}:");
-                            ListaEquipos();
-
-                            seleccion = Convert.ToInt32(Console.ReadLine());
-
-                            if (seleccion < 1 || seleccion > equipos.Count)
+                            if (tipoTorneo == "Deportes")
                             {
-                                Console.WriteLine("Opción no válida. Intenta nuevamente.");
-                                continue;
+                                ListaEquiposDeportes();
+                                seleccion = Convert.ToInt32(Console.ReadLine());
+
+                                if (seleccion < 1 || seleccion > EquiposDeportes.Count)
+                                {
+                                    Console.WriteLine("Opción no válida. Intenta nuevamente.");
+                                    continue;
+                                }
+
+                                equipoSeleccionado = EquiposDeportes.Values.ElementAt(seleccion - 1);
+
+                                if (torneo.Participantes.Contains(equipoSeleccionado))
+                                {
+                                    Console.WriteLine("Ese equipo ya fue agregado al torneo. Elige otro.");
+                                }
+                                else
+                                {
+                                    valido = true;
+                                }
+                            }
+                            else if (tipoTorneo == "eSports")
+                            {
+                                ListaEquiposeSports();
+                                seleccion = Convert.ToInt32(Console.ReadLine());
+
+                                if (seleccion < 1 || seleccion > EquiposeSports.Count)
+                                {
+                                    Console.WriteLine("Opción no válida. Intenta nuevamente.");
+                                    continue;
+                                }
+
+                                equipoSeleccionado = EquiposeSports.Values.ElementAt(seleccion - 1);
+
+                                if (torneo.Participantes.Contains(equipoSeleccionado))
+                                {
+                                    Console.WriteLine("Ese equipo ya fue agregado al torneo. Elige otro.");
+                                }
+                                else
+                                {
+                                    valido = true;
+                                }
                             }
 
-                            equipoSeleccionado = equipos.Values.ElementAt(seleccion - 1);
 
-                            if (torneo.Participantes.Contains(equipoSeleccionado))
-                            {
-                                Console.WriteLine("Ese equipo ya fue agregado al torneo. Elige otro.");
-                            }
-                            else
-                            {
-                                valido = true;
-                            }
                         }
                         torneo.Participantes.Add(equipoSeleccionado);
                         Console.WriteLine($"Equipo '{equipoSeleccionado.NombreTeam}' agregado al torneo.");
@@ -375,15 +502,30 @@ namespace uwu
                         $"\n3er Puesto: {p2.NombreTeam}" +
                         $"\n4to Puesto: {p4.NombreTeam}");
 
-                    var primer = jugadores.Where(e => e.Equipo.Equals(p1)).ToList();
-                    var segundo = jugadores.Where(e => e.Equipo.Equals(p3)).ToList();
+                    List<Team<T>> posiciones = new List<Team<T>> { p1, p3, p2, p4 };
 
-                    foreach (var item in primer)
+                    for (int pos = 0; pos < posiciones.Count; pos++)
                     {
-                        int pLugar = rnd.Next(90, 100);
-                        item.Stats = pLugar;
-                        Console.WriteLine(item.Stats + " q");
+                        Team<T> equipoActual = posiciones[pos];
+                        var jugadoresEquipo = equipoActual.Jugadores;
+
+                        double min = 0, max = 0;
+                        switch (pos + 1)
+                        {
+                            case 1: min = 1.30; max = 1.50; break;
+                            case 2: min = 1.15; max = 1.29; break;
+                            case 3: min = 1.05; max = 1.14; break;
+                            case 4: min = 0.95; max = 1.04; break;
+                        }
+
+
+                        foreach (var jugador in jugadoresEquipo)
+                        {
+                            double puntos = rnd.NextDouble() * (max - min) + min;
+                            jugador.ActualizarStats(puntos);
+                        }
                     }
+
 
                 }
                 else if (cantidad == 8)
@@ -396,26 +538,52 @@ namespace uwu
                         while (!valido)
                         {
                             Console.WriteLine($"Selecciona el equipo #{i + 1}:");
-                            ListaEquipos();
-
-                            seleccion = Convert.ToInt32(Console.ReadLine());
-
-                            if (seleccion < 1 || seleccion > equipos.Count)
+                            if (tipoTorneo == "Deportes")
                             {
-                                Console.WriteLine("Opción no válida. Intenta nuevamente.");
-                                continue;
+                                ListaEquiposDeportes();
+                                seleccion = Convert.ToInt32(Console.ReadLine());
+
+                                if (seleccion < 1 || seleccion > EquiposDeportes.Count)
+                                {
+                                    Console.WriteLine("Opción no válida. Intenta nuevamente.");
+                                    continue;
+                                }
+
+                                equipoSeleccionado = EquiposDeportes.Values.ElementAt(seleccion - 1);
+
+                                if (torneo.Participantes.Contains(equipoSeleccionado))
+                                {
+                                    Console.WriteLine("Ese equipo ya fue agregado al torneo. Elige otro.");
+                                }
+                                else
+                                {
+                                    valido = true;
+                                }
+                            }
+                            else if (tipoTorneo == "eSports")
+                            {
+                                ListaEquiposeSports();
+                                seleccion = Convert.ToInt32(Console.ReadLine());
+
+                                if (seleccion < 1 || seleccion > EquiposeSports.Count)
+                                {
+                                    Console.WriteLine("Opción no válida. Intenta nuevamente.");
+                                    continue;
+                                }
+
+                                equipoSeleccionado = EquiposeSports.Values.ElementAt(seleccion - 1);
+
+                                if (torneo.Participantes.Contains(equipoSeleccionado))
+                                {
+                                    Console.WriteLine("Ese equipo ya fue agregado al torneo. Elige otro.");
+                                }
+                                else
+                                {
+                                    valido = true;
+                                }
                             }
 
-                            equipoSeleccionado = equipos.Values.ElementAt(seleccion - 1);
 
-                            if (torneo.Participantes.Contains(equipoSeleccionado))
-                            {
-                                Console.WriteLine("Ese equipo ya fue agregado al torneo. Elige otro.");
-                            }
-                            else
-                            {
-                                valido = true;
-                            }
                         }
                         torneo.Participantes.Add(equipoSeleccionado);
                         Console.WriteLine($"Equipo '{equipoSeleccionado.NombreTeam}' agregado al torneo.");
@@ -472,6 +640,35 @@ namespace uwu
                         $"\n7mo Puesto: {p6.NombreTeam}" +
                         $"\n8vo Puesto: {p8.NombreTeam}"
                         );
+
+                    List<Team<T>> posiciones = new List<Team<T>> { p1, p5, p3, p7, p2, p4, p6, p8 };
+
+                    for (int pos = 0; pos < posiciones.Count; pos++)
+                    {
+                        Team<T> equipoActual = posiciones[pos];
+                        var jugadoresEquipo = equipoActual.Jugadores;
+
+                        double min = 0, max = 0;
+                        switch (pos + 1)
+                        {
+                            case 1: min = 1.30; max = 1.50; break;
+                            case 2: min = 1.15; max = 1.29; break;
+                            case 3: min = 1.05; max = 1.14; break;
+                            case 4: min = 0.95; max = 1.04; break;
+                            case 5: min = 0.85; max = 0.94; break;
+                            case 6: min = 0.75; max = 0.84; break;
+                            case 7: min = 0.65; max = 0.74; break;
+                            case 8: min = 0.50; max = 0.64; break;
+                        }
+
+                        foreach (var jugador in jugadoresEquipo)
+                        {
+                            double puntos = rnd.NextDouble() * (max - min) + min;
+                            jugador.ActualizarStats(puntos);
+                        }
+                    }
+
+
                 }
                 Console.WriteLine();
             }
@@ -487,7 +684,7 @@ namespace uwu
             public void AñadirJug(int jugador, int equipo)
             {
                 Player<T> p1 = jugadores.ElementAt(jugador - 1);
-                Team<T> e1 = equipos.Values.ElementAt(equipo - 1);
+                Team<T> e1 = EquiposDeportes.Values.ElementAt(equipo - 1);
 
                 e1.Jugadores.Add(p1);
 
