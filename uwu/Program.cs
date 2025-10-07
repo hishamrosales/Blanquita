@@ -64,14 +64,21 @@ namespace uwu
             int respuesta = 0;
             do
             {
-                Console.WriteLine("----menu----");
+                Console.WriteLine("----MENÚ----");
                 Console.WriteLine("1. Crear Jugadores");
                 Console.WriteLine("2. Crear Equipos");
                 Console.WriteLine("3. Añadir Jugador a Equipo");
                 Console.WriteLine("4. Crear Torneo");
                 Console.WriteLine("5. Historial de Torneos");
                 Console.WriteLine("6. Mostrar Ranking general de Jugadores");
-                Console.WriteLine("10. Salir");
+                Console.WriteLine("7. Calcular promedio de nivel de equipo");
+                Console.WriteLine("8. Mostrar jugadores de torneo");
+                Console.WriteLine("9. Estadísticas individuales y por equipos");
+                Console.WriteLine("10. Quitar jugadores de equipos");
+                Console.WriteLine("11. Logros y MVP");
+                Console.WriteLine("12. Partido amistoso");
+                Console.WriteLine("13. Comparar puntuaciones");
+                Console.WriteLine("14. Salir");
                 respuesta = Convert.ToInt32(Console.ReadLine());
 
                 switch (respuesta)
@@ -184,15 +191,85 @@ namespace uwu
                         metodos.RankingJugadores();
                         break;
                     case 7:
+                        string tipoEquipo;
+                        do
+                        {
+                            Console.WriteLine("¿Deportes o eSports?");
+                            tipoEquipo = Console.ReadLine();
+                        } while (tipoEquipo != "Deportes" && tipoEquipo != "eSports");
 
+                        if (tipoEquipo == "Deportes")
+                        {
+                            metodos.ListaEquiposDeportes();
+                            Console.WriteLine("Selecciona el equipo para calcular promedio:");
+                            int selEquipo = Convert.ToInt32(Console.ReadLine());
+                            var equipo = metodos.ObtenerEquiposDeportes().ElementAt(selEquipo - 1);
+
+                            double promedio = metodos.CalculateAverage(equipo);
+                            Console.WriteLine($"Promedio de nivel del equipo {equipo.NombreTeam}: {promedio:F2}");
+                        }
+                        else
+                        {
+                            metodos.ListaEquiposeSports();
+                            Console.WriteLine("Selecciona el equipo para calcular promedio:");
+                            int selEquipo = Convert.ToInt32(Console.ReadLine());
+                            var equipo = metodos.ObtenerEquiposEsports().ElementAt(selEquipo - 1);
+
+                            double promedio = metodos.CalculateAverage(equipo);
+                            Console.WriteLine($"Promedio de nivel del equipo {equipo.NombreTeam}: {promedio:F2}");
+                        }
                         break;
+
                     case 8:
+                        metodos.MostrarTorneos();
+                        Console.WriteLine("Selecciona el torneo para ver sus jugadores:");
+                        int selTorneo = Convert.ToInt32(Console.ReadLine());
+                        metodos.MostrarJugadoresDeTorneo(selTorneo - 1);
                         break;
                     case 9:
+                        Console.WriteLine("1. Estadísticas individuales");
+                        Console.WriteLine("2. Estadísticas por equipos");
+                        int opcionStats = Convert.ToInt32(Console.ReadLine());
+
+                        if (opcionStats == 1)
+                        {
+                            metodos.MostrarEstadisticasIndividuales();
+                        }
+                        else if (opcionStats == 2)
+                        {
+                            metodos.MostrarEstadisticasPorEquipos();
+                        }
+                        break;
+
+                    case 10:
+                        metodos.QuitarJugadorDeEquipo();
+                        break;
+
+                    case 11:
+                        metodos.MostrarLogrosYMVP();
+                        break;
+
+                    case 12:
+                        metodos.PartidoAmistoso();
+                        break;
+
+                    case 13:
+                        Console.WriteLine("1. Comparar dos jugadores");
+                        Console.WriteLine("2. Comparar dos equipos");
+                        int opcionComparar = Convert.ToInt32(Console.ReadLine());
+
+                        if (opcionComparar == 1)
+                        {
+                            metodos.CompararJugadores();
+                        }
+                        else if (opcionComparar == 2)
+                        {
+                            metodos.CompararEquipos();
+                        }
                         break;
                 }
 
-            } while (respuesta != 10);
+            } while (respuesta != 14);
 
 
         }
@@ -216,11 +293,6 @@ namespace uwu
                 if (Nivel > 25)
                 {
                     Nivel = 25;
-                }
-                else
-                {
-                    Console.WriteLine("Se actualizó el nivel del jugador");
-                    Console.WriteLine($"Nuevo nivel: {Nivel:F2}");
                 }
 
                 if (Nivel >= 0 && Nivel < 5)
@@ -250,15 +322,39 @@ namespace uwu
             public List<T> Participantes { get; set; }
         }
 
+        public class Achievement<T>
+        {
+            public string Titulo { get; set; }
+            public string Descripcion { get; set; }
+            public Player<T> Jugador { get; set; }
+            public Team<T> Equipo { get; set; }
+            public DateTime Fecha { get; set; }
+        }
+
+        public class Partido<T>
+        {
+            public Team<T> EquipoLocal { get; set; }
+            public Team<T> EquipoVisitante { get; set; }
+            public int PuntosLocal { get; set; }
+            public int PuntosVisitante { get; set; }
+            public Team<T> Ganador { get; set; }
+            public Player<T> MVP { get; set; }
+            public DateTime Fecha { get; set; }
+        }
+
 
         public class Metodos<T>
         {
             List<Player<T>> jugadores = new List<Player<T>>();
+            List<Player<T>> jugadoresConEquipo = new List<Player<T>>();
             Dictionary<string, Team<T>> EquiposDeportes = new Dictionary<string, Team<T>>();
             Dictionary<string, Team<T>> EquiposeSports = new Dictionary<string, Team<T>>();
             Queue<Player<T>> turnos = new Queue<Player<T>>();
             Stack<Player<T>> historial = new Stack<Player<T>>();
             Stack<string> torneosPasados = new Stack<string>();
+            public List<Tournament<Team<T>>> Torneos = new List<Tournament<Team<T>>>();
+            public List<Achievement<T>> Logros = new List<Achievement<T>>();
+            public List<Partido<T>> Partidos = new List<Partido<T>>();
 
 
             public void CompareScoresJugadores(int a, int b)
@@ -271,11 +367,15 @@ namespace uwu
                 Team<T> t1 = EquiposDeportes.Values.FirstOrDefault(e => e.Equals(a));
                 Team<T> t2 = EquiposDeportes.Values.FirstOrDefault(e => e.Equals(b));
             }
-            public static double CalculateAverage<T>(List<T> list)
+            public double CalculateAverage(Team<T> equipo)
             {
+                if (equipo.Jugadores.Count == 0)
+                    return 0;
 
-                return;
+                double total = equipo.Jugadores.Sum(j => j.Nivel);
+                return total / equipo.Jugadores.Count;
             }
+
             public void PrintDetails<T>(T item)
             {
 
@@ -520,6 +620,43 @@ namespace uwu
                         $"\n3er Puesto: {p2.NombreTeam}" +
                         $"\n4to Puesto: {p4.NombreTeam}");
 
+                    // Crear logros para el torneo
+                    var equipoGanador = p1;
+                    var mvpTorneo = equipoGanador.Jugadores.OrderByDescending(j => j.Nivel).First();
+
+                    // Logro para el equipo ganador
+                    var logroGanador = new Achievement<T>
+                    {
+                        Titulo = $"Campeón del Torneo {nombreTorneo}",
+                        Descripcion = $"Equipo ganador del torneo {nombreTorneo}",
+                        Jugador = null,
+                        Equipo = equipoGanador,
+                        Fecha = DateTime.Now
+                    };
+                    Logros.Add(logroGanador);
+
+                    // Logro para el MVP del torneo
+                    var logroMVP = new Achievement<T>
+                    {
+                        Titulo = $"MVP del Torneo {nombreTorneo}",
+                        Descripcion = $"Jugador más valioso del torneo {nombreTorneo}",
+                        Jugador = mvpTorneo,
+                        Equipo = equipoGanador,
+                        Fecha = DateTime.Now
+                    };
+                    Logros.Add(logroMVP);
+
+                    // Logro para el subcampeón
+                    var logroSubcampeon = new Achievement<T>
+                    {
+                        Titulo = $"Subcampeón del Torneo {nombreTorneo}",
+                        Descripcion = $"Segundo lugar en el torneo {nombreTorneo}",
+                        Jugador = null,
+                        Equipo = p3, // En torneo de 4 equipos
+                        Fecha = DateTime.Now
+                    };
+                    Logros.Add(logroSubcampeon);
+
                     List<Team<T>> posiciones = new List<Team<T>> { p1, p3, p2, p4 };
 
                     for (int pos = 0; pos < posiciones.Count; pos++)
@@ -659,6 +796,43 @@ namespace uwu
                         $"\n8vo Puesto: {p8.NombreTeam}"
                         );
 
+                    // Crear logros para el torneo
+                    var equipoGanador = p1;
+                    var mvpTorneo = equipoGanador.Jugadores.OrderByDescending(j => j.Nivel).First();
+
+                    // Logro para el equipo ganador
+                    var logroGanador = new Achievement<T>
+                    {
+                        Titulo = $"Campeón del Torneo {nombreTorneo}",
+                        Descripcion = $"Equipo ganador del torneo {nombreTorneo}",
+                        Jugador = null,
+                        Equipo = equipoGanador,
+                        Fecha = DateTime.Now
+                    };
+                    Logros.Add(logroGanador);
+
+                    // Logro para el MVP del torneo
+                    var logroMVP = new Achievement<T>
+                    {
+                        Titulo = $"MVP del Torneo {nombreTorneo}",
+                        Descripcion = $"Jugador más valioso del torneo {nombreTorneo}",
+                        Jugador = mvpTorneo,
+                        Equipo = equipoGanador,
+                        Fecha = DateTime.Now
+                    };
+                    Logros.Add(logroMVP);
+
+                    // Logro para el subcampeón
+                    var logroSubcampeon = new Achievement<T>
+                    {
+                        Titulo = $"Subcampeón del Torneo {nombreTorneo}",
+                        Descripcion = $"Segundo lugar en el torneo {nombreTorneo}",
+                        Jugador = null,
+                        Equipo = p3, // En torneo de 4 equipos
+                        Fecha = DateTime.Now
+                    };
+                    Logros.Add(logroSubcampeon);
+
                     List<Team<T>> posiciones = new List<Team<T>> { p1, p5, p3, p7, p2, p4, p6, p8 };
 
                     for (int pos = 0; pos < posiciones.Count; pos++)
@@ -688,6 +862,7 @@ namespace uwu
 
 
                 }
+                GuardarTorneo(torneo);
                 Console.WriteLine();
             }
             public void HistorialTorneos()
@@ -708,18 +883,484 @@ namespace uwu
 
                 p1.Equipo = e1;
 
+                jugadoresConEquipo.Add(p1);
                 jugadores.Remove(p1);
             }
 
-            //RANKINGS
+            public List<Team<T>> ObtenerEquiposDeportes()
+            {
+                return EquiposDeportes.Values.ToList();
+            }
 
+            public List<Team<T>> ObtenerEquiposEsports()
+            {
+                return EquiposeSports.Values.ToList();
+            }
+
+
+            //TORNEOS OWO
+            public void GuardarTorneo(Tournament<Team<T>> torneo)
+            {
+                Torneos.Add(torneo);
+            }
+
+            public void MostrarTorneos()
+            {
+                if (Torneos.Count == 0)
+                {
+                    Console.WriteLine("No hay torneos pasados.");
+                    return;
+                }
+
+                for (int i = 0; i < Torneos.Count; i++)
+                {
+                    Console.WriteLine($"{i + 1}. {Torneos[i].NombreTour} ({Torneos[i].TipoTour})");
+                }
+            }
+
+            public void MostrarJugadoresDeTorneo(int index)
+            {
+                if (index < 0 || index >= Torneos.Count)
+                {
+                    Console.WriteLine("Índice de torneo no válido.");
+                    return;
+                }
+
+                var torneo = Torneos[index];
+                Console.WriteLine($"Jugadores del torneo: {torneo.NombreTour}");
+
+                foreach (var equipo in torneo.Participantes)
+                {
+                    Console.WriteLine($"Equipo: {equipo.NombreTeam}");
+                    foreach (var jugador in equipo.Jugadores)
+                    {
+                        Console.WriteLine($"- {jugador.NombreP} ({jugador.Stats})");
+                    }
+                }
+            }
+            public void MostrarEstadisticasIndividuales()
+            {
+                if (jugadoresConEquipo.Count == 0)
+                {
+                    Console.WriteLine("No hay jugadores registrados.");
+                    return;
+                }
+
+                Console.WriteLine("=== ESTADÍSTICAS INDIVIDUALES ===");
+                foreach (var jugador in jugadoresConEquipo.OrderByDescending(j => j.Nivel))
+                {
+                    Console.WriteLine($"\nNombre: {jugador.NombreP}");
+                    Console.WriteLine($"Edad: {jugador.Edad}");
+                    Console.WriteLine($"Nivel: {jugador.Nivel:F2}");
+                    Console.WriteLine($"Stats: {jugador.Stats}");
+                    Console.WriteLine($"Especialidad: {jugador.Especiales}");
+                    Console.WriteLine($"Tipo: {jugador.TipoJ}");
+                    Console.WriteLine($"Equipo: {(jugador.Equipo != null ? jugador.Equipo.NombreTeam : "Sin equipo")}");
+                }
+            }
+
+            public void MostrarEstadisticasPorEquipos()
+            {
+                Console.WriteLine("=== ESTADÍSTICAS POR EQUIPOS ===");
+
+                Console.WriteLine("\n--- EQUIPOS DE DEPORTES ---");
+                foreach (var equipo in EquiposDeportes.Values)
+                {
+                    Console.WriteLine($"\nEquipo: {equipo.NombreTeam}");
+                    Console.WriteLine($"Cantidad de jugadores: {equipo.Jugadores.Count}");
+                    Console.WriteLine($"Promedio de nivel: {CalculateAverage(equipo):F2}");
+                    Console.WriteLine($"Jugadores:");
+                    foreach (var jugador in equipo.Jugadores.OrderByDescending(j => j.Nivel))
+                    {
+                        Console.WriteLine($"  - {jugador.NombreP} (Nivel: {jugador.Nivel:F2}, {jugador.Stats})");
+                    }
+                }
+
+                Console.WriteLine("\n--- EQUIPOS DE ESPORTS ---");
+                foreach (var equipo in EquiposeSports.Values)
+                {
+                    Console.WriteLine($"\nEquipo: {equipo.NombreTeam}");
+                    Console.WriteLine($"Cantidad de jugadores: {equipo.Jugadores.Count}");
+                    Console.WriteLine($"Promedio de nivel: {CalculateAverage(equipo):F2}");
+                    Console.WriteLine($"Jugadores:");
+                    foreach (var jugador in equipo.Jugadores.OrderByDescending(j => j.Nivel))
+                    {
+                        Console.WriteLine($"  - {jugador.NombreP} (Nivel: {jugador.Nivel:F2}, {jugador.Stats})");
+                    }
+                }
+            }
+
+            public void QuitarJugadorDeEquipo()
+            {
+                Console.WriteLine("¿De qué tipo de equipo quieres quitar el jugador? (Deportes/eSports)");
+                string tipo = Console.ReadLine();
+
+                if (tipo == "Deportes")
+                {
+                    ListaEquiposConJugadoresDeportes();
+                    Console.WriteLine("Selecciona el equipo:");
+                    int equipoIndex = Convert.ToInt32(Console.ReadLine()) - 1;
+
+                    var equipo = EquiposDeportes.Values.ElementAt(equipoIndex);
+                    if (equipo.Jugadores.Count == 0)
+                    {
+                        Console.WriteLine("Este equipo no tiene jugadores.");
+                        return;
+                    }
+
+                    Console.WriteLine("Jugadores del equipo:");
+                    for (int i = 0; i < equipo.Jugadores.Count; i++)
+                    {
+                        Console.WriteLine($"{i + 1}. {equipo.Jugadores[i].NombreP}");
+                    }
+
+                    Console.WriteLine("Selecciona el jugador a quitar:");
+                    int jugadorIndex = Convert.ToInt32(Console.ReadLine()) - 1;
+
+                    if (jugadorIndex >= 0 && jugadorIndex < equipo.Jugadores.Count)
+                    {
+                        var jugador = equipo.Jugadores[jugadorIndex];
+                        equipo.Jugadores.RemoveAt(jugadorIndex);
+                        jugador.Equipo = null;
+                        jugadores.Add(jugador);
+                        Console.WriteLine($"Jugador {jugador.NombreP} quitado del equipo {equipo.NombreTeam}");
+                    }
+                }
+                else if (tipo == "eSports")
+                {
+                    // Implementación similar para eSports
+                    ListaEquiposConJugadoreseSports();
+                    Console.WriteLine("Selecciona el equipo:");
+                    int equipoIndex = Convert.ToInt32(Console.ReadLine()) - 1;
+
+                    var equipo = EquiposeSports.Values.ElementAt(equipoIndex);
+                    if (equipo.Jugadores.Count == 0)
+                    {
+                        Console.WriteLine("Este equipo no tiene jugadores.");
+                        return;
+                    }
+
+                    Console.WriteLine("Jugadores del equipo:");
+                    for (int i = 0; i < equipo.Jugadores.Count; i++)
+                    {
+                        Console.WriteLine($"{i + 1}. {equipo.Jugadores[i].NombreP}");
+                    }
+
+                    Console.WriteLine("Selecciona el jugador a quitar:");
+                    int jugadorIndex = Convert.ToInt32(Console.ReadLine()) - 1;
+
+                    if (jugadorIndex >= 0 && jugadorIndex < equipo.Jugadores.Count)
+                    {
+                        var jugador = equipo.Jugadores[jugadorIndex];
+                        equipo.Jugadores.RemoveAt(jugadorIndex);
+                        jugador.Equipo = null;
+                        jugadores.Add(jugador);
+                        Console.WriteLine($"Jugador {jugador.NombreP} quitado del equipo {equipo.NombreTeam}");
+                    }
+                }
+            }
+
+            public void MostrarLogrosYMVP()
+            {
+                if (Logros.Count == 0)
+                {
+                    Console.WriteLine("No hay logros registrados aún.");
+                    Console.WriteLine("Los logros se crean automáticamente al completar torneos.");
+                    return;
+                }
+
+                Console.WriteLine("=== LOGROS Y MVP ===");
+
+                // Mostrar logros de equipos
+                Console.WriteLine("\nLOGROS DE EQUIPOS:");
+                var logrosEquipos = Logros.Where(l => l.Equipo != null && l.Jugador == null);
+                if (logrosEquipos.Any())
+                {
+                    foreach (var logro in logrosEquipos)
+                    {
+                        Console.WriteLine($"\nTítulo: {logro.Titulo}");
+                        Console.WriteLine($"Descripción: {logro.Descripcion}");
+                        Console.WriteLine($"Equipo: {logro.Equipo.NombreTeam}");
+                        Console.WriteLine($"Fecha: {logro.Fecha:dd/MM/yyyy}");
+                        Console.WriteLine(new string('-', 50));
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No hay logros de equipos registrados.");
+                }
+
+                // Mostrar logros individuales (MVP)
+                Console.WriteLine("\nLOGROS INDIVIDUALES (MVP):");
+                var logrosIndividuales = Logros.Where(l => l.Jugador != null);
+                if (logrosIndividuales.Any())
+                {
+                    foreach (var logro in logrosIndividuales)
+                    {
+                        Console.WriteLine($"\nTítulo: {logro.Titulo}");
+                        Console.WriteLine($"Descripción: {logro.Descripcion}");
+                        Console.WriteLine($"Jugador: {logro.Jugador.NombreP}");
+                        Console.WriteLine($"Equipo: {logro.Equipo?.NombreTeam}");
+                        Console.WriteLine($"Fecha: {logro.Fecha:dd/MM/yyyy}");
+                        Console.WriteLine(new string('-', 50));
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No hay logros individuales registrados.");
+                }
+
+                // Mostrar MVP del último torneo si existe
+                if (Torneos.Count > 0)
+                {
+                    var ultimoTorneo = Torneos.Last();
+                    var equipoGanador = ultimoTorneo.Participantes.First();
+                    var mvp = equipoGanador.Jugadores.OrderByDescending(j => j.Nivel).First();
+
+                    Console.WriteLine($"\nMVP ACTUAL (ÚLTIMO TORNEO - {ultimoTorneo.NombreTour}):");
+                    Console.WriteLine($"Jugador: {mvp.NombreP}");
+                    Console.WriteLine($"Equipo: {equipoGanador.NombreTeam}");
+                    Console.WriteLine($"Nivel: {mvp.Nivel:F2}");
+                    Console.WriteLine($"Stats: {mvp.Stats}");
+                }
+
+                // Estadísticas de logros
+                Console.WriteLine($"\nESTADÍSTICAS DE LOGROS:");
+                Console.WriteLine($"Total de logros: {Logros.Count}");
+                Console.WriteLine($"Logros de equipos: {Logros.Count(l => l.Jugador == null)}");
+                Console.WriteLine($"Logros individuales: {Logros.Count(l => l.Jugador != null)}");
+
+                // Jugador con más logros
+                var jugadorConMasLogros = Logros
+                    .Where(l => l.Jugador != null)
+                    .GroupBy(l => l.Jugador)
+                    .OrderByDescending(g => g.Count())
+                    .FirstOrDefault();
+
+                if (jugadorConMasLogros != null)
+                {
+                    Console.WriteLine($"\nJUGADOR CON MÁS LOGROS:");
+                    Console.WriteLine($"{jugadorConMasLogros.Key.NombreP} - {jugadorConMasLogros.Count()} logros");
+                }
+
+                // Equipo con más logros
+                var equipoConMasLogros = Logros
+                    .Where(l => l.Equipo != null)
+                    .GroupBy(l => l.Equipo)
+                    .OrderByDescending(g => g.Count())
+                    .FirstOrDefault();
+
+                if (equipoConMasLogros != null)
+                {
+                    Console.WriteLine($"\nEQUIPO CON MÁS LOGROS:");
+                    Console.WriteLine($"{equipoConMasLogros.Key.NombreTeam} - {equipoConMasLogros.Count()} logros");
+                }
+            }
+
+            public void PartidoAmistoso()
+            {
+                Console.WriteLine("=== PARTIDO AMISTOSO ===");
+                Console.WriteLine("Selecciona el tipo de equipos (Deportes/eSports):");
+                string tipo = Console.ReadLine();
+
+                Team<T> equipo1 = null, equipo2 = null;
+
+                if (tipo == "Deportes")
+                {
+                    ListaEquiposDeportes();
+                    Console.WriteLine("Selecciona el primer equipo:");
+                    int eq1 = Convert.ToInt32(Console.ReadLine()) - 1;
+                    equipo1 = EquiposDeportes.Values.ElementAt(eq1);
+
+                    Console.WriteLine("Selecciona el segundo equipo:");
+                    int eq2 = Convert.ToInt32(Console.ReadLine()) - 1;
+                    equipo2 = EquiposDeportes.Values.ElementAt(eq2);
+                }
+                else if (tipo == "eSports")
+                {
+                    ListaEquiposeSports();
+                    Console.WriteLine("Selecciona el primer equipo:");
+                    int eq1 = Convert.ToInt32(Console.ReadLine()) - 1;
+                    equipo1 = EquiposeSports.Values.ElementAt(eq1);
+
+                    Console.WriteLine("Selecciona el segundo equipo:");
+                    int eq2 = Convert.ToInt32(Console.ReadLine()) - 1;
+                    equipo2 = EquiposeSports.Values.ElementAt(eq2);
+                }
+
+                if (equipo1 != null && equipo2 != null)
+                {
+                    Random rnd = new Random();
+                    int puntosEq1 = rnd.Next(0, 100);
+                    int puntosEq2 = rnd.Next(0, 100);
+
+                    // Asegurar que no sea empate
+                    while (puntosEq1 == puntosEq2)
+                    {
+                        puntosEq2 = rnd.Next(0, 100);
+                    }
+
+                    Team<T> ganador = puntosEq1 > puntosEq2 ? equipo1 : equipo2;
+                    Team<T> perdedor = puntosEq1 > puntosEq2 ? equipo2 : equipo1;
+
+                    // Seleccionar MVP (jugador con mayor nivel del equipo ganador)
+                    var mvp = ganador.Jugadores.OrderByDescending(j => j.Nivel).First();
+
+                    // Crear partido
+                    var partido = new Partido<T>
+                    {
+                        EquipoLocal = equipo1,
+                        EquipoVisitante = equipo2,
+                        PuntosLocal = puntosEq1,
+                        PuntosVisitante = puntosEq2,
+                        Ganador = ganador,
+                        MVP = mvp,
+                        Fecha = DateTime.Now
+                    };
+
+                    Partidos.Add(partido);
+
+                    // Crear logro para el MVP
+                    var logroMVP = new Achievement<T>
+                    {
+                        Titulo = "MVP Partido Amistoso",
+                        Descripcion = $"Jugador más valioso del partido entre {equipo1.NombreTeam} vs {equipo2.NombreTeam}",
+                        Jugador = mvp,
+                        Equipo = ganador,
+                        Fecha = DateTime.Now
+                    };
+                    Logros.Add(logroMVP);
+
+                    // Mostrar resultados
+                    Console.WriteLine($"\nRESULTADO DEL PARTIDO:");
+                    Console.WriteLine($"{equipo1.NombreTeam} {puntosEq1} - {puntosEq2} {equipo2.NombreTeam}");
+                    Console.WriteLine($"GANADOR: {ganador.NombreTeam}");
+                    Console.WriteLine($"⭐ MVP: {mvp.NombreP} ({mvp.Stats})");
+
+                    // Mejorar stats del MVP
+                    double mejora = rnd.NextDouble() * 0.5 + 0.1;
+                    mvp.ActualizarStats(mejora);
+                    Console.WriteLine($"{mvp.NombreP} ha mejorado su nivel en {mejora:F2} puntos!");
+                }
+            }
+
+            public void CompararJugadores()
+            {
+                if (jugadoresConEquipo.Count < 2)
+                {
+                    Console.WriteLine("Se necesitan al menos 2 jugadores para comparar.");
+                    return;
+                }
+
+                Console.WriteLine("Selecciona el primer jugador:");
+                for (int i = 0; i < jugadoresConEquipo.Count; i++)
+                {
+                    Console.WriteLine($"{i + 1}. {jugadoresConEquipo[i].NombreP} (Nivel: {jugadoresConEquipo[i].Nivel:F2})");
+                }
+                int jug1 = Convert.ToInt32(Console.ReadLine()) - 1;
+
+                Console.WriteLine("Selecciona el segundo jugador:");
+                for (int i = 0; i < jugadoresConEquipo.Count; i++)
+                {
+                    if (i != jug1)
+                        Console.WriteLine($"{i + 1}. {jugadoresConEquipo[i].NombreP} (Nivel: {jugadoresConEquipo[i].Nivel:F2})");
+                }
+                int jug2 = Convert.ToInt32(Console.ReadLine()) - 1;
+
+                var player1 = jugadoresConEquipo[jug1];
+                var player2 = jugadoresConEquipo[jug2];
+
+                Console.WriteLine($"\nCOMPARACIÓN ENTRE JUGADORES:");
+                Console.WriteLine($"{"Atributo",-20} {player1.NombreP,-15} {player2.NombreP,-15}");
+                Console.WriteLine(new string('=', 50));
+                Console.WriteLine($"{"Nombre",-20} {player1.NombreP,-15} {player2.NombreP,-15}");
+                Console.WriteLine($"{"Edad",-20} {player1.Edad,-15} {player2.Edad,-15}");
+                Console.WriteLine($"{"Nivel",-20} {player1.Nivel,-15:F2} {player2.Nivel,-15:F2}");
+                Console.WriteLine($"{"Stats",-20} {player1.Stats,-15} {player2.Stats,-15}");
+                Console.WriteLine($"{"Especialidad",-20} {player1.Especiales,-15} {player2.Especiales,-15}");
+
+                if (player1.Nivel > player2.Nivel)
+                    Console.WriteLine($"\n{player1.NombreP} tiene MEJOR nivel que {player2.NombreP}");
+                else if (player1.Nivel < player2.Nivel)
+                    Console.WriteLine($"\n{player2.NombreP} tiene MEJOR nivel que {player1.NombreP}");
+                else
+                    Console.WriteLine($"\nAmbos jugadores tienen el MISMO nivel");
+            }
+
+            public void CompararEquipos()
+            {
+                Console.WriteLine("Selecciona el tipo de equipos a comparar (Deportes/eSports):");
+                string tipo = Console.ReadLine();
+
+                List<Team<T>> equipos = tipo == "Deportes" ? EquiposDeportes.Values.ToList() : EquiposeSports.Values.ToList();
+
+                if (equipos.Count < 2)
+                {
+                    Console.WriteLine($"Se necesitan al menos 2 equipos de {tipo} para comparar.");
+                    return;
+                }
+
+                Console.WriteLine("Selecciona el primer equipo:");
+                for (int i = 0; i < equipos.Count; i++)
+                {
+                    Console.WriteLine($"{i + 1}. {equipos[i].NombreTeam} (Jugadores: {equipos[i].Jugadores.Count})");
+                }
+                int eq1 = Convert.ToInt32(Console.ReadLine()) - 1;
+
+                Console.WriteLine("Selecciona el segundo equipo:");
+                for (int i = 0; i < equipos.Count; i++)
+                {
+                    if (i != eq1)
+                        Console.WriteLine($"{i + 1}. {equipos[i].NombreTeam} (Jugadores: {equipos[i].Jugadores.Count})");
+                }
+                int eq2 = Convert.ToInt32(Console.ReadLine()) - 1;
+
+                var equipo1 = equipos[eq1];
+                var equipo2 = equipos[eq2];
+
+                double promedio1 = CalculateAverage(equipo1);
+                double promedio2 = CalculateAverage(equipo2);
+
+                Console.WriteLine($"\nCOMPARACIÓN ENTRE EQUIPOS:");
+                Console.WriteLine($"{"Atributo",-20} {equipo1.NombreTeam,-15} {equipo2.NombreTeam,-15}");
+                Console.WriteLine(new string('=', 50));
+                Console.WriteLine($"{"Nombre",-20} {equipo1.NombreTeam,-15} {equipo2.NombreTeam,-15}");
+                Console.WriteLine($"{"Jugadores",-20} {equipo1.Jugadores.Count,-15} {equipo2.Jugadores.Count,-15}");
+                Console.WriteLine($"{"Nivel Promedio",-20} {promedio1,-15:F2} {promedio2,-15:F2}");
+                Console.WriteLine($"{"Tipo",-20} {equipo1.TipoT,-15} {equipo2.TipoT,-15}");
+
+                if (promedio1 > promedio2)
+                    Console.WriteLine($"\n{equipo1.NombreTeam} tiene MEJOR promedio que {equipo2.NombreTeam}");
+                else if (promedio1 < promedio2)
+                    Console.WriteLine($"\n{equipo2.NombreTeam} tiene MEJOR promedio que {equipo1.NombreTeam}");
+                else
+                    Console.WriteLine($"\nAmbos equipos tienen el MISMO nivel promedio");
+            }
+
+            // Modificar el método RankingJugadores existente para ordenar por Nivel
             public void RankingJugadores()
             {
-                var topStats = jugadores.OrderByDescending(t => t.Stats);
-                Console.WriteLine("Jugadores ordenados por Mejores Estadisticas");
-                foreach (var t in topStats)
-                    Console.WriteLine(t.NombreP + " - " + t.Stats + " - " + t.Equipo);
+                if (jugadoresConEquipo.Count == 0)
+                {
+                    Console.WriteLine("No hay jugadores registrados.");
+                    return;
+                }
+
+                var ranking = jugadoresConEquipo.OrderByDescending(j => j.Nivel).ThenByDescending(j => j.Stats);
+
+                Console.WriteLine("=== RANKING GENERAL DE JUGADORES ===");
+                Console.WriteLine($"{"Pos",-4} {"Nombre",-15} {"Nivel",-8} {"Stats",-25} {"Equipo",-15}");
+                Console.WriteLine(new string('=', 70));
+
+                int posicion = 1;
+                foreach (var jugador in ranking)
+                {
+                    Console.WriteLine($"{posicion,-4} {jugador.NombreP,-15} {jugador.Nivel,-8:F2} {jugador.Stats,-25} {(jugador.Equipo != null ? jugador.Equipo.NombreTeam : "Sin equipo"),-15}");
+                    posicion++;
+                }
             }
         }
+
+
     }
 }
